@@ -1,21 +1,134 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculator Panel</title>
-
-    <!-- CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>CLT Floor Panel Calculator - Perfect Vanilla JS Version</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-    <div class="container py-4">
-        <h1 class="mb-4">Calculator Panel</h1>
-        <!-- Write Input On Here -->
-    </div>
+    <div class="container-fluid py-5">
+        <header class="text-center mb-5">
+            <h1 class="fw-bold text-dark">CLT Floor Panel Calculator</h1>
+        </header>
 
-    <!-- Script -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="calculator.js"></script>
+        <div id="validationAlert" class="alert alert-danger d-none mb-4" role="alert">
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card p-4">
+                    <h4 class="fw-bold mb-4" style="color:#12558b;">Input Section</h4>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Analytical Method</label>
+                        <select class="form-select" id="inputMethod">
+                            <option value="Shear Analogy">Shear Analogy</option>
+                            <option value="Gamma Method">Gamma Method</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Timber Grade</label>
+                        <select class="form-select" id="inputGrade">
+                            <option value="MGP10">MGP10</option>
+                            <option value="MGP12">MGP12</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" id="labelLayers">Total Layers (3-9)</label>
+                        <input type="number" class="form-control" id="inputTotalLayers" value="5">
+                        <div class="form-text text-muted" id="layerHelpText">Shear Analogy menerima 3 hingga 9 layers.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Thickness Each Layer (mm)</label>
+                        <input type="number" class="form-control" id="inputThickness" value="35" min="1">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Effective Width / b_eff (mm)</label>
+                        <input type="number" class="form-control" id="inputBeff" value="1000" min="1">
+                    </div>
+
+                    <div class="p-3 bg-light rounded border">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Total Thickness:</span>
+                            <span class="fw-bold text-dark" id="outTotalThickness">175 mm</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Global Centroid (y_c):</span>
+                            <span class="fw-bold text-dark" id="outGlobalCentroid">87.5 mm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card p-4 mb-4 bg-white result-box shadow-sm">
+                    <h6 class="text-muted fw-bold text-uppercase mb-1" id="resultTitle">EFFECTIVE FLEXURAL STIFFNESS (EI eff - Shear Analogy)</h6>
+                    <h2 class="fw-bold mb-0" id="resultValue" style="color:#12558b;">0 N-mm²/m</h2>
+                </div>
+
+                <div id="sectionShearAnalogy" class="card p-4 mb-4">
+                    <h4 class="fw-bold mb-3 text-secondary">Shear Analogy Layup Details</h4>
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle text-center m-0">
+                            <thead>
+                                <tr>
+                                    <th>Layer</th>
+                                    <th>Orientation</th>
+                                    <th>t_i (mm)</th>
+                                    <th>y_i (mm)</th>
+                                    <th>h_i (mm)</th>
+                                    <th>E_i,XX (MPa)</th>
+                                    <th>E_i I_i (N-mm²/m)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBodyShear">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="sectionGamma" class="card p-4 mb-4 d-none">
+                    <h4 class="fw-bold mb-3 text-secondary">Gamma Method Layup Details</h4>
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle text-center m-0">
+                            <thead>
+                                <tr>
+                                    <th>Layer</th>
+                                    <th>Orientation</th>
+                                    <th>t_i (mm)</th>
+                                    <th>a_i (mm)</th>
+                                    <th>&gamma;_i (-)</th>
+                                    <th>E_i,XX (MPa)</th>
+                                    <th>EI_eff,&gamma; (N-mm²/m)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBodyGamma">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="text-muted small px-2">
+                    <span class="badge bg-warning text-dark me-1">■</span> 0° Longitudinal (Menyumbang kekakuan tekuk utama pada arah XX)<br/>
+                    <span class="badge bg-secondary me-1">■</span> 90° Transverse (Kekakuan arah serat XX dianggap 0 sesuai parameter mekanika)
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="./type/material-grade-type.js"></script>
+    <script src="./type/clt-layer-type.js"></script>
+    <script src="./type/clt-layup-type.js"></script>
+    <script src="./type/panel-properties-type.js"></script>
+    <script src="./type/clt-layer-properties-type.js"></script>
+    <script src="./calculation/panel-properties.js"></script>
+    <script src="./calculator.js"></script>
 </body>
 </html>

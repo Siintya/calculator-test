@@ -1,0 +1,30 @@
+body {
+    background-color: #f4f6f9;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+}
+
+.table th {
+    background-color: #12558b;
+    color: #f1f1f1;
+    vertical-align: middle;
+}
+
+/* Warna kuning soft untuk serat Longitudinal (0 derajat) */
+.layer-0 {
+    background-color: #fff8e1;
+}
+
+/* Warna abu soft untuk serat Transverse (90 derajat) */     
+.layer-90 {
+    background-color: #f1f3f5;
+}
+  
+.result-box {
+    border-left: 5px solid #12558b;
+}
